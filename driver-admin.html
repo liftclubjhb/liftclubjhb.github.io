@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Driver Admin — Lift Club JHB</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080808;--s1:#111;--s2:#1a1a1a;--s3:#262626;--border:#2e2e2e;--muted:#666;--dim:#999;--text:#f0f0f0;--white:#fff;--r:10px;--rs:6px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.6}
+.wrap{max-width:640px;margin:0 auto;padding:32px 20px 60px}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:0.04em;color:var(--white);margin-bottom:4px}
+.subtitle{color:var(--muted);font-size:0.85rem;margin-bottom:28px}
+.card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:22px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:0.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px}
+.field input{width:100%;background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);padding:12px 14px;color:var(--text);font-size:0.95rem;font-family:inherit;outline:none;transition:border-color .2s}
+.field input:focus{border-color:var(--white)}
+button{cursor:pointer;font-family:inherit;font-weight:700;border:none;border-radius:var(--rs);padding:13px 18px;font-size:0.9rem;width:100%}
+.btn-primary{background:var(--white);color:var(--bg)}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed}
+.msg{margin-top:14px;padding:11px 14px;border-radius:var(--rs);font-size:0.85rem;display:none}
+.msg.show{display:block}
+.msg.success{background:rgba(34,197,94,0.1);border:1px solid #22c55e;color:#4ade80}
+.msg.error{background:rgba(239,68,68,0.1);border:1px solid #ef4444;color:#f87171}
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--white);margin:36px 0 14px;letter-spacing:0.02em}
+.driver-row{display:flex;align-items:center;gap:12px;padding:14px;border:1px solid var(--border);border-radius:var(--rs);margin-bottom:10px;background:var(--s2)}
+.driver-row-edit{flex-direction:column;align-items:stretch}
+.driver-row-edit input{width:100%;background:var(--s1);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;color:var(--text);font-size:0.85rem;font-family:inherit;outline:none;margin-bottom:8px}
+.driver-row-edit input:focus{border-color:var(--white)}
+.edit-actions{display:flex;gap:8px}
+.edit-actions button{flex:1}
+.driver-info{flex:1;min-width:0}
+.driver-name{font-weight:700;color:var(--white);font-size:0.92rem}
+.driver-meta{color:var(--muted);font-size:0.78rem;margin-top:2px}
+.driver-badge{font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;padding:3px 9px;border-radius:100px;flex-shrink:0}
+.badge-active{background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.4)}
+.badge-inactive{background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.4)}
+.toggle-btn{flex-shrink:0;background:var(--s3);color:var(--text);border:1px solid var(--border);padding:8px 12px;border-radius:var(--rs);font-size:0.75rem;font-weight:600;width:auto}
+.toggle-btn:hover{border-color:var(--white)}
+.empty-state{color:var(--muted);font-size:0.85rem;text-align:center;padding:24px}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:var(--white);border-radius:50%;animation:spin .7s linear infinite;vertical-align:-2px;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+#lockScreen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;text-align:center}
+#lockScreen .card{width:100%;max-width:340px;text-align:left}
+#appScreen{display:none}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="logo">LIFT CLUB JHB</div>
+  <div class="subtitle">Driver Admin</div>
+
+  <!-- LOCK SCREEN -->
+  <div id="lockScreen">
+    <div class="card">
+      <div class="field">
+        <label>Admin Password</label>
+        <input type="password" id="pwInput" placeholder="Enter admin password" autocomplete="off"/>
+      </div>
+      <button class="btn-primary" id="unlockBtn" onclick="unlock()">Unlock</button>
+      <div class="msg" id="lockMsg"></div>
+    </div>
+  </div>
+
+  <!-- APP SCREEN -->
+  <div id="appScreen">
+    <div class="card">
+      <div class="field">
+        <label>Driver Name</label>
+        <input type="text" id="dName" placeholder="Full name"/>
+      </div>
+      <div class="field">
+        <label>Phone Number</label>
+        <input type="tel" id="dPhone" placeholder="082 123 4567"/>
+      </div>
+      <div class="field">
+        <label>Email (optional)</label>
+        <input type="email" id="dEmail" placeholder="driver@email.com"/>
+      </div>
+      <button class="btn-primary" id="regBtn" onclick="registerDriver()">+ Register Driver</button>
+      <div class="msg" id="regMsg"></div>
+    </div>
+
+    <div class="section-title">Registered Drivers</div>
+    <div id="driverList"><div class="empty-state">Loading drivers...</div></div>
+  </div>
+</div>
+
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbwPl9LbPp6cp9RSSJo_3LzaDk8qogBc43grfCdgbZzWbm7QBG9ZhGrAF7FficI3MHMZ/exec';
+let adminPassword = '';
+
+function unlock() {
+  const pw = document.getElementById('pwInput').value.trim();
+  const msg = document.getElementById('lockMsg');
+  const btn = document.getElementById('unlockBtn');
+  if (!pw) { msg.textContent = 'Please enter the password.'; msg.className = 'msg error show'; return; }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Checking...';
+
+  fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ action: 'listDrivers', password: pw })
+  })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        adminPassword = pw;
+        document.getElementById('lockScreen').style.display = 'none';
+        document.getElementById('appScreen').style.display = 'block';
+        renderDrivers(data.drivers);
+      } else {
+        msg.textContent = data.error || 'Incorrect password.';
+        msg.className = 'msg error show';
+        btn.disabled = false;
+        btn.textContent = 'Unlock';
+      }
+    })
+    .catch(() => {
+      msg.textContent = 'Network error. Please try again.';
+      msg.className = 'msg error show';
+      btn.disabled = false;
+      btn.textContent = 'Unlock';
+    });
+}
+
+function loadDrivers() {
+  fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ action: 'listDrivers', password: adminPassword })
+  })
+    .then(r => r.json())
+    .then(data => { if (data.success) renderDrivers(data.drivers); })
+    .catch(err => console.error('Failed to load drivers:', err));
+}
+
+let currentDrivers = [];
+let editingDriverId = null;
+
+function renderDrivers(drivers) {
+  currentDrivers = drivers || [];
+  const list = document.getElementById('driverList');
+  if (!drivers || !drivers.length) {
+    list.innerHTML = '<div class="empty-state">No drivers registered yet.</div>';
+    return;
+  }
+  list.innerHTML = drivers.map(d => {
+    const isActive = (d.Active || '').toString().toUpperCase() !== 'N';
+    const driverId = escapeHtml(d.DriverID || '');
+
+    if (editingDriverId === d.DriverID) {
+      return `
+        <div class="driver-row driver-row-edit">
+          <input type="text" id="editName" value="${escapeHtml(d.Name || '')}" placeholder="Full name"/>
+          <input type="tel" id="editPhone" value="${escapeHtml(d.Phone || '')}" placeholder="Phone"/>
+          <input type="email" id="editEmail" value="${escapeHtml(d.Email || '')}" placeholder="Email (optional)"/>
+          <div class="msg" id="editMsg"></div>
+          <div class="edit-actions">
+            <button class="toggle-btn" onclick="saveEdit('${driverId}')">Save</button>
+            <button class="toggle-btn" onclick="cancelEdit()">Cancel</button>
+          </div>
+        </div>`;
+    }
+
+    return `
+      <div class="driver-row">
+        <div class="driver-info">
+          <div class="driver-name">${escapeHtml(d.Name || '')}</div>
+          <div class="driver-meta">${escapeHtml(d.Phone || '')} &middot; ${driverId}${d.Email ? ' &middot; ' + escapeHtml(d.Email) : ''}</div>
+        </div>
+        <span class="driver-badge ${isActive ? 'badge-active' : 'badge-inactive'}">${isActive ? 'Active' : 'Inactive'}</span>
+        <button class="toggle-btn" onclick="startEdit('${driverId}')">Edit</button>
+        <button class="toggle-btn" onclick="toggleActive('${driverId}', ${!isActive})">${isActive ? 'Deactivate' : 'Activate'}</button>
+      </div>`;
+  }).join('');
+}
+
+function startEdit(driverId) {
+  editingDriverId = driverId;
+  renderDrivers(currentDrivers);
+}
+
+function cancelEdit() {
+  editingDriverId = null;
+  renderDrivers(currentDrivers);
+}
+
+function saveEdit(driverId) {
+  const name = document.getElementById('editName').value.trim();
+  const phone = document.getElementById('editPhone').value.trim();
+  const email = document.getElementById('editEmail').value.trim();
+  const msg = document.getElementById('editMsg');
+
+  if (!name || !phone) {
+    msg.textContent = 'Name and phone are required.';
+    msg.className = 'msg error show';
+    return;
+  }
+
+  fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ action: 'updateDriver', password: adminPassword, driverId: driverId, name: name, phone: phone, email: email })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      editingDriverId = null;
+      loadDrivers();
+    } else {
+      msg.textContent = data.error || 'Failed to update.';
+      msg.className = 'msg error show';
+    }
+  })
+  .catch(() => {
+    msg.textContent = 'Network error. Please try again.';
+    msg.className = 'msg error show';
+  });
+}
+
+function escapeHtml(str) {
+  return (str || '').toString().replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+function registerDriver() {
+  const name = document.getElementById('dName').value.trim();
+  const phone = document.getElementById('dPhone').value.trim();
+  const email = document.getElementById('dEmail').value.trim();
+  const msg = document.getElementById('regMsg');
+  const btn = document.getElementById('regBtn');
+
+  if (!name || !phone) {
+    msg.textContent = 'Please enter both name and phone number.';
+    msg.className = 'msg error show';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Registering...';
+  msg.classList.remove('show');
+
+  fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ action: 'registerDriver', password: adminPassword, name: name, phone: phone, email: email })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      msg.textContent = `Driver registered! ID: ${data.driverId}`;
+      msg.className = 'msg success show';
+      document.getElementById('dName').value = '';
+      document.getElementById('dPhone').value = '';
+      document.getElementById('dEmail').value = '';
+      loadDrivers();
+    } else {
+      msg.textContent = data.error || 'Registration failed.';
+      msg.className = 'msg error show';
+    }
+  })
+  .catch(() => {
+    msg.textContent = 'Network error. Please try again.';
+    msg.className = 'msg error show';
+  })
+  .finally(() => {
+    btn.disabled = false;
+    btn.textContent = '+ Register Driver';
+  });
+}
+
+function toggleActive(driverId, makeActive) {
+  fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ action: 'setDriverActive', password: adminPassword, driverId: driverId, active: makeActive })
+  })
+  .then(r => r.json())
+  .then(data => { if (data.success) loadDrivers(); else alert(data.error || 'Failed to update driver.'); })
+  .catch(() => alert('Network error. Please try again.'));
+}
+
+document.getElementById('pwInput').addEventListener('keydown', e => { if (e.key === 'Enter') unlock(); });
+document.getElementById('dPhone').addEventListener('keydown', e => { if (e.key === 'Enter') registerDriver(); });
+</script>
+</body>
+</html>
